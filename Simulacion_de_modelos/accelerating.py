@@ -55,6 +55,13 @@ inicial = [x1_i, x2_i, y1_i, y2_i]
 res = integrate.odeint(acceleratin, inicial, t, args=(rck, c, a, r))
 x1, x2, y1, y2 = res.T
 
+# plt.figure()
+# plt.plot(t, x1, label = 'x1', linestyle = 'dashed')
+# plt.plot(t, x2, label = 'x2', linestyle = 'dashed')
+# plt.show()
+
+# General para un N arbirario
+
 inicial_2 = [x1_i, y1_i, x2_i, y2_i]
 
 N = 4
@@ -69,16 +76,36 @@ res_grl = integrate.odeint(accelerating_grl, ini, t, args=(rck, c, a, r, N*2))
 xy = res_grl.T
 
 
-# plt.figure()
-# plt.plot(t, x1, label = 'x1', linestyle = 'dashed')
-# plt.plot(t, x2, label = 'x2', linestyle = 'dashed')
-# plt.show()
-
+xs = []
+ys = []
+plt.figure()
 for i in range(N*2):
     if i%2 == 0:
         plt.plot(t, xy[i], label = 'x'+str((i+1)//2))
+        xs.append(xy[i])
+    else:
+        ys.append(xy[i])
 
 plt.xlabel('tiempo')
 plt.ylabel(r'$L_i (t)$')
 plt.legend()
+plt.show()
+
+
+# Agrego cosas nuevas
+
+def accelerating_grl_graph(x, y, t, rck, c, a, r):
+    x_punto = []
+    for i in range(len(x)):
+        x_punto_i = r*x[i] * (1 - rck*y[i] - c*(sum(x)-x[i]))
+        x_punto.append(x_punto_i)
+
+    return np.array(x_punto)
+
+x_puntos = accelerating_grl_graph(xs, ys, t, rck, c,a, r)
+
+plt.figure()
+plt.plot(xs[3], x_puntos[3])
+plt.xlabel('x')
+plt.ylabel(r'$\dot{x}$')
 plt.show()

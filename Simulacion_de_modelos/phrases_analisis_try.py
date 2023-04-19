@@ -83,3 +83,17 @@ grafo = make_graph(variables, variables_label)
 plt.figure()
 nx.draw(grafo, with_labels =True)
 plt.show()
+
+## pruebo buscando similaridaes pero con una libreria que busca similaridades en el texto en si
+import spacy
+
+nlp = spacy.load("es_core_news_md")  # load the medium-sized Spanish language model
+
+simil  = nlp(infobae).similarity(nlp(lanacion))
+print('similaridad en texto', simil)
+
+for txt, i in enumerate(variables):
+    for txtj, j in enumerate(variables):
+        if i != j:
+            simil = nlp(i).similarity(nlp(j))
+            print(f"similaridad entre {variables_label[txt]} y {variables_label[txtj]} es {simil}")

@@ -56,14 +56,18 @@ def make_graph(variables, variables_label):
 
 
 frase1 = "Hola, esto es una prueba, veremos, si funca"
-frase2 = "hola, esto es una prueba. Veremos, no creo que funque"
+frase3 = "Hola, esto es una prueba, veremos, si funca"
+frase2 = "hola, esto es una prueba, Veremos, no creo que funque"
+#frase3 = "el presidente batman, mató al guason"
 print(count_consecutive_words(frase1, frase2))
 
 
-# frase1_token = frase1.split(" ")
-# frase2_token = frase2.split(" ")
-# dist = pylev.levenschtein(frase1_token, frase2_token)
-#print('distancia de levenschtein', dist)
+frase1_token = frase1.split(" ")
+frase2_token = frase3.split(" ")
+dist = pylev.levenschtein(frase1_token, frase2_token)
+dist = pylev.levenschtein("batman", "batnam")
+
+print('distancia de levenschtein', dist)
 
 pagina = "Le he presentado al Presidente Alberto Fernández mi renuncia indeclinable como jefe de Asesores de manera inmediata"
 infobae = "A raíz de los rumores que circularon desde anoche y a los efectos de desactivar cualquier operación tendiente a intranquilizar los mercados le he presentado al Presidente mi renuncia indeclinable como Jefe de Asesores de manera inmediata"
@@ -96,4 +100,4 @@ for txt, i in enumerate(variables):
     for txtj, j in enumerate(variables):
         if i != j:
             simil = nlp(i).similarity(nlp(j))
-            print(f"similaridad entre {variables_label[txt]} y {variables_label[txtj]} es {simil}")
+            #print(f"similaridad entre {variables_label[txt]} y {variables_label[txtj]} es {simil}")

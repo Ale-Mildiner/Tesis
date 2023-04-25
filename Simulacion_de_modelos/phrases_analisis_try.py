@@ -1,9 +1,12 @@
+#%%
 from nltk import word_tokenize
 import string
 import pylev
 import networkx as nx
 import matplotlib.pyplot as plt
-
+import pandas as pd
+import numpy as np
+import time
 
 def count_consecutive_words(phrase1, phrase2):
     phrase1 = phrase1.translate(str.maketrans('', '', string.punctuation))
@@ -39,6 +42,13 @@ def count_consecutive_words(phrase1, phrase2):
     return max_count
 
 
+def tokenize(phrase):
+    phrase = phrase.translate(str.maketrans('', '', string.punctuation))
+    phrase = word_tokenize(phrase.lower())
+
+    return phrase
+
+
 def make_graph(variables, variables_label):
     G = nx.DiGraph()
     G.add_nodes_from(variables_label)
@@ -52,13 +62,85 @@ def make_graph(variables, variables_label):
     return G
 
 
+def make_graph_t(variables, k, d):
+    '''
+    variables: lista con los str para aramr la red
+    k: parametro de la cantidad de palabras consevutivas para armar un link (segun paper k = 10)
+    d: parametro delta de direct editing distance (segun paper d =< 1)
+    '''
+    variables = list(set(variables)) # si hago esto se reducen muchisimo los tiempos
+    G = nx.DiGraph()
+    G.add_nodes_from(variables)
+    edges = []
+    for i, phrase1 in enumerate(variables):
+        for j, phrase2 in enumerate(variables):
+            #if i != j: # ignoramos la diagonal
+            if phrase1 != phrase2: #ignoramos las que son exactamente iguales
+                phr1 = tokenize(phrase1)
+                phr2 = tokenize(phrase2)
+                lev_dist = pylev.levenschtein(phr1, phr2)     # Distancia de levenschtein, creo que es la que usan en el paper
+
+                if (count_consecutive_words(phrase1,phrase2) >= k and len(phr1) < len(phr2)) or lev_dist <= d:
+                    G.add_edge(phrase1, phrase2)
+#                    print('entre')
+ #                   edges.append((phrase1, phrase2))
+
+    return G
+#%%
+path = 'd:/Facultad/Tesis/'
+ids = np.arange(10, 1000)
+phrases = []
+for id in ids:
+    try:
+      data = pd.read_csv(path + 'Data_disgregada/Lkvec_id'+str(id)+'.csv')  
+      phrases = phrases + list(data['phrase'])
+    except:
+        pass
+
+print(len(phrases))
+t0 = time.time()
+grafo = make_graph_t(phrases, k = 10, d = 1)
+tf = time.time()
+print(tf-t0)
+
+#%%
+
+plt.figure()
+nx.draw(grafo, node_size = 10)
+plt.show()
+print(len(grafo.edges()))
 
 
+#%%
+pagina = "Le he presentado al Presidente Alberto Fernández mi renuncia indeclinable como jefe de Asesores de manera inmediata"
+infobae = "A raíz de los rumores que circularon desde anoche y a los efectos de desactivar cualquier operación tendiente a intranquilizar los mercados le he presentado al Presidente mi renuncia indeclinable como Jefe de Asesores de manera inmediata"
+lanacion = "tendientes a intranquilizar los mercados"
+ambito = "desactivar cualquier operación tendiente a intranquilizar los mercados"
+cronista = "A raíz de los rumores que circularon desde anoche y a los efectos de desactivar cualquier operación tendiente a intranquilizar los mercados le he presentado al Presidente Alberto Fernández mi renuncia indeclinable como Jefe de Asesores de manera inmediata"
+clarin = "A raíz de los rumores que circularon desde anoche y a los efectos de desactivar cualquier operación tendiente a intranquilizar los mercados le he presentado al Presidente @alferdez mi renuncia indeclinable como Jefe de Asesores de manera inmediata"
+destape = "A raíz de los rumores que circularon desde anoche y a los efectos de desactivar cualquier operación tendiente a intranquilizar los mercados le he presentado al Presidente @alferdez mi renuncia indeclinable como Jefe de Asesores de manera inmediata"
+
+variables = [pagina, infobae, lanacion, ambito, cronista, clarin, destape]
+
+grafo = make_graph_t(variables, k = 10, d = 1)
+plt.figure()
+nx.draw(grafo, with_labels =True)
+plt.show()
+
+
+
+
+
+
+
+
+
+#%% Test
 
 frase1 = "Hola, esto es una prueba, veremos, si funca"
 frase3 = "Hola, esto es una prueba, veremos, si funca"
 frase2 = "hola, esto es una prueba, Veremos, no creo que funque"
-#frase3 = "el presidente batman, mató al guason"
+frase3 = "el presidente batman, mató al guason"
 print(count_consecutive_words(frase1, frase2))
 
 
@@ -69,6 +151,8 @@ dist = pylev.levenschtein("batman", "batnam")
 
 print('distancia de levenschtein', dist)
 
+
+#%%
 pagina = "Le he presentado al Presidente Alberto Fernández mi renuncia indeclinable como jefe de Asesores de manera inmediata"
 infobae = "A raíz de los rumores que circularon desde anoche y a los efectos de desactivar cualquier operación tendiente a intranquilizar los mercados le he presentado al Presidente mi renuncia indeclinable como Jefe de Asesores de manera inmediata"
 lanacion = "tendientes a intranquilizar los mercados"
@@ -82,6 +166,9 @@ print('medios digitales', count_consecutive_words(clarin, pagina))
 
 variables = [pagina, infobae, lanacion, ambito, cronista, clarin, destape]
 variables_label = ('P12', 'infobae', 'nacion', 'ambito', 'cronista', 'clarin', 'destape')
+
+
+#%%
 
 grafo = make_graph(variables, variables_label)
 plt.figure()

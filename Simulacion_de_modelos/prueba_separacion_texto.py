@@ -68,20 +68,21 @@ def make_graph_t(variables, k, d):
     k: parametro de la cantidad de palabras consevutivas para armar un link (segun paper k = 10)
     d: parametro delta de direct editing distance (segun paper d =< 1)
     '''
-    variables = list(set(variables)) # si hago esto se reducen muchisimo los tiempos
+    variables_set = list(set(variables)) # si hago esto se reducen muchisimo los tiempos
     G = nx.DiGraph()
-    G.add_nodes_from(variables)
+    G.add_nodes_from(variables_set)
     edges = []
-    for i, phrase1 in enumerate(variables):
-        for j, phrase2 in enumerate(variables):
+    for i, phrase1 in enumerate(variables_set):
+        for j, phrase2 in enumerate(variables_set):
             #if i != j: # ignoramos la diagonal
             if phrase1 != phrase2: #ignoramos las que son exactamente iguales
                 phr1 = tokenize(phrase1)
                 phr2 = tokenize(phrase2)
                 lev_dist = pylev.levenschtein(phr1, phr2)     # Distancia de levenschtein, creo que es la que usan en el paper
+                frec = variables.count(phrase1)
 
-                if (count_consecutive_words(phrase1,phrase2) >= k and len(phr1) < len(phr2)) or lev_dist <= d:
-                    G.add_edge(phrase1, phrase2)
+                if (count_consecutive_words(phrase1,phrase2) >= k  or lev_dist <= d) and len(phr1) < len(phr2):
+                    G.add_edge(phrase1, phrase2, weight = frec)
 #                    print('entre')
  #                   edges.append((phrase1, phrase2))
 
@@ -109,6 +110,18 @@ plt.figure()
 nx.draw(grafo, node_size = 10)
 plt.show()
 print(len(grafo.edges()))
+
+components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
+for componente in components:
+    if len(componente) > 5:
+        print(len(componente), list(componente))
+
+
+# components = nx.connected_components(grafo)
+# for component in components:
+#     if len(component)>5:
+#         print(len(component), list(component)[0])
+
 
 
 #%%

@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import time
+import winsound
+
 
 def count_consecutive_words(phrase1, phrase2):
     phrase1 = phrase1.translate(str.maketrans('', '', string.punctuation))
@@ -95,6 +97,10 @@ grafo = make_graph_t(phrases, k = 10, d = 1)
 tf = time.time()
 print(tf-t0)
 
+
+duration = 1000
+freq = 440
+winsound.Beep(freq, duration)
 #%%
 plt.figure()
 nx.draw_kamada_kawai(grafo, node_size = 10)
@@ -105,9 +111,49 @@ components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly o
 for componente in components:
     if len(componente) > 5:
         print(len(componente), list(componente))
+winsound.Beep(freq, duration)
 
+#%% Pureba para eliminacion de enlances
+
+#print(grafo.edges(nodes[2]))
+# for node in nodes:
+#     n_comp = 0
+#     for comp in components:
+#         if nodes[2] in comp:
+#             n_comp += 1
+
+def problematic_nodes(red):
+    components = list(nx.weakly_connected_components(red)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
+
+
+    nodes = list(red.nodes())
+    problematic_nodes = []
+    for node in nodes:
+        num_components = sum([node in component for component in components])
+        if num_components > 1:
+            problematic_nodes.append(node)
+
+    return problematic_nodes
+
+def edges_to_remove(red):
+    '''
+    Hay que iterar sobre todos los nodos (remover nodes[2]) y tener un criterio de remosion de 
+    enlaces.
+    '''
+    components = list(nx.weakly_connected_components(red)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
+
+    comp_values = dict.fromkeys(components, 0) # creo un diccionario con las componentes y como valores va a tener la cantidad de apariciones
+    for nodes_edges in grafo.edges(nodes[2]): # itero por los nodos conectados a un determinado nodo
+        for comp in components:
+            if nodes_edges in comp:
+                comp_values[comp] += 1 
+    
+    for comp, appearances in comp_values.items():
+        if appearances > 0:
+            print(appearances) # tengo que probar bien pero no tengo datos para esto 
+            #nx.remove_edge(node1, node2)
+    return red  
 #%% TEST de parametros
-import winsound
 def dist_frases(componentes, min_conect):
     values = []
     for comp in componentes:

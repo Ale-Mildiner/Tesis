@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import time
 import winsound
-
+import pandas as pd
 
 def count_consecutive_words(phrase1, phrase2):
     phrase1 = phrase1.translate(str.maketrans('', '', string.punctuation))
@@ -87,6 +87,56 @@ def extrac_phrases(path, num):
             pass
 
     return phrases
+#%% Prueba usando DataFrames
+path = 'd:/Facultad/Tesis/'
+phrases = extrac_phrases(path, 1000)
+
+
+def tokenize_count(phrase):
+    phrase = phrase.translate(str.maketrans('', '', string.punctuation))
+    phrase = word_tokenize(phrase.lower())
+
+    return len(phrase)
+
+
+phrases_ones = list(set(phrases))
+phdf = pd.DataFrame({'phrases': phrases_ones})
+phdf['len'] = phdf['phrases'].apply(tokenize_count)
+frec = [0]*len(phrases_ones)
+for i, phr in enumerate(phrases_ones):
+    frec[i] = phrases.count(phr)
+phdf['frec'] = frec
+
+
+def make_graph_df(df, k,d):
+
+    G = nx.DiGraph()
+    G.add_nodes_from(df['phrases'])
+    for phr1 in df['phrases']:
+        length_fr1 = int(df.loc[df['phrases'] == phr1]['len'])
+        frec_fr1 = int(df.loc[df['phrases'] == phr1]['frec'])
+        length_filter = df['len']>length_fr1
+        df_filter = df[length_filter]
+        for phr2 in df_filter['phrases']:
+            phrese1 = tokenize(phr1)
+            phrese2 = tokenize(phr2)
+            lev_dist = pylev.levenschtein(phrese1, phrese2) 
+            if (count_consecutive_words(phr1,phr2) >= k  or lev_dist <= d):
+                    G.add_edge(phr1, phr2, weight = frec_fr1)
+
+    return G
+
+print(len(phrases))
+t0 = time.time()
+grafo = make_graph_df(phdf, k = 10, d = 1)
+tf = time.time()
+print(tf-t0)
+
+components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
+for componente in components:
+    if len(componente) > 5:
+        print(len(componente), list(componente))
+
 #%%
 path = 'd:/Facultad/Tesis/'
 phrases = extrac_phrases(path, 1000)

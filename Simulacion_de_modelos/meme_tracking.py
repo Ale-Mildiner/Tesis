@@ -8,7 +8,6 @@ import pandas as pd
 import numpy as np
 import time
 import winsound
-import pandas as pd
 
 def count_consecutive_words(phrase1, phrase2):
     phrase1 = phrase1.translate(str.maketrans('', '', string.punctuation))
@@ -88,7 +87,8 @@ def extrac_phrases(path, num):
 
     return phrases
 #%% Prueba usando DataFrames
-path = 'd:/Facultad/Tesis/'
+#path = 'd:/Facultad/Tesis/'
+path = 'c:/Facultad/Tesis/'
 phrases = extrac_phrases(path, 1000)
 
 
@@ -117,12 +117,13 @@ def make_graph_df(df, k,d):
         frec_fr1 = int(df.loc[df['phrases'] == phr1]['frec'])
         length_filter = df['len']>length_fr1
         df_filter = df[length_filter]
-        for phr2 in df_filter['phrases']:
+        for phr2 in df_filter['phrases']:   
+            frec_fr2 = int(df.loc[df['phrases'] == phr2]['frec'])
             phrese1 = tokenize(phr1)
             phrese2 = tokenize(phr2)
             lev_dist = pylev.levenschtein(phrese1, phrese2) 
             if (count_consecutive_words(phr1,phr2) >= k  or lev_dist <= d):
-                    G.add_edge(phr1, phr2, weight = frec_fr1)
+                    G.add_edge(phr1, phr2, weight = frec_fr2)
 
     return G
 
@@ -132,11 +133,25 @@ grafo = make_graph_df(phdf, k = 10, d = 1)
 tf = time.time()
 print(tf-t0)
 
+duration = 1000
+freq = 440
+winsound.Beep(freq, duration)
+#%%
 components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
-for componente in components:
+for i,componente in enumerate(components):
     if len(componente) > 5:
-        print(len(componente), list(componente))
+        print(len(componente), i, list(componente))
 
+comp_t = components[14]
+print(comp_t)
+out = grafo.out_degree(comp_t)
+for o in out:
+    print(o[1])
+p = 0
+for path in nx.all_simple_paths(grafo, list(comp_t)[-3], list(comp_t)[3]):
+    print('path', path)
+    p += 1
+print(p)
 #%%
 path = 'd:/Facultad/Tesis/'
 phrases = extrac_phrases(path, 1000)

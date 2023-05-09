@@ -143,12 +143,17 @@ frec = [0]*len(phrases_ones)
 for i, phr in enumerate(phrases_ones):
     frec[i] = phrases.count(phr)
 phdf['frec'] = frec
-
+#%%
+phdf.to_csv(path+'all_data.csv')
 # with open('phrases.txt', 'w') as f:
 #     for phr in phrases:
 #         f.write(f"{phr}\n")
 #%% Histograma de pesos
-
+plt.hist(phdf['frec'], bins= np.linspace(0, 20000, 100))
+#plt.xlim([0, 2500])
+plt.yscale('log')
+plt.ylabel('cantidad de apariencias')
+plt.xlabel('pesos')
 
 
 #%%

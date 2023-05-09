@@ -143,7 +143,6 @@ frec = [0]*len(phrases_ones)
 for i, phr in enumerate(phrases_ones):
     frec[i] = phrases.count(phr)
 phdf['frec'] = frec
-winsound.Beep(freq, duration)
 
 # with open('phrases.txt', 'w') as f:
 #     for phr in phrases:

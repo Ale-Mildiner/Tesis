@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import time
 import winsound
-
+import pickle
 def count_consecutive_words(phrase1, phrase2):
     phrase1 = phrase1.translate(str.maketrans('', '', string.punctuation))
     phrase2 = phrase2.translate(str.maketrans('', '', string.punctuation))
@@ -126,8 +126,8 @@ def tokenize_count(phrase):
 
     return len(phrase)
 
-path = 'd:/Facultad/Tesis/'
-#path = 'c:/Facultad/Tesis/'
+#path = 'd:/Facultad/Tesis/'
+path = 'c:/Facultad/Tesis/'
 phrases = extrac_phrases(path, 1000)
 
 
@@ -144,10 +144,14 @@ for i, phr in enumerate(phrases_ones):
     frec[i] = phrases.count(phr)
 phdf['frec'] = frec
 #%%
-phdf.to_csv(path+'all_data.csv')
+#phdf.to_csv(path+'all_data.csv')
 # with open('phrases.txt', 'w') as f:
 #     for phr in phrases:
 #         f.write(f"{phr}\n")
+
+with open(path+'phrases_list.txt', 'wb') as f:
+    pickle.dump(phrases, f) 
+
 #%% Histograma de pesos
 plt.hist(phdf['frec'], bins= np.linspace(0, 20000, 100))
 #plt.xlim([0, 2500])
@@ -165,11 +169,15 @@ tf = time.time()
 print(tf-t0)
 
 
+df_to_compare = pd.DataFrame(columns=['frases', 'cantidad'])
+print(df_to_compare)
 components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
 for i,componente in enumerate(components):
     if len(componente) > 5:
         print(len(componente), list(componente))
+        df_to_compare.loc[i] = [list(componente), len(componente)]
 
+print(df_to_compare)
 
 # plt.figure()
 # nx.draw_kamada_kawai(grafo, node_size = 10)
@@ -179,7 +187,18 @@ for i,componente in enumerate(components):
 duration = 1000
 freq = 440
 winsound.Beep(freq, duration)
+#%%
 
+list(df_to_compare['frases'])
+
+with open(path+'frases_to_compare.txt', 'wb') as f:
+    pickle.dump(list(df_to_compare['frases']), f) 
+
+with open(path+'cantidad_to_compare.txt', 'wb') as f:
+    pickle.dump(list(df_to_compare['cantidad']), f) 
+
+
+#df_to_compare.to_csv(path+'df_to_compare.csv')
 
 
 

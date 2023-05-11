@@ -67,7 +67,7 @@ def extrac_phrases(path, num):
             pass
 
     return phrases
-#%% Prueba usando DataFrames
+
 def make_graph_df_v2(df, k,d):
 
     G = nx.DiGraph()
@@ -126,9 +126,11 @@ def tokenize_count(phrase):
 
     return len(phrase)
 
-#path = 'd:/Facultad/Tesis/'
-path = 'c:/Facultad/Tesis/'
-phrases = extrac_phrases(path, 1000)
+
+#%%
+path = 'd:/Facultad/Tesis/'
+#path = 'c:/Facultad/Tesis/'
+phrases = extrac_phrases(path, 5000)
 
 
 duration = 1000
@@ -149,15 +151,15 @@ phdf['frec'] = frec
 #     for phr in phrases:
 #         f.write(f"{phr}\n")
 
-with open(path+'phrases_list.txt', 'wb') as f:
-    pickle.dump(phrases, f) 
+# with open(path+'phrases_list.txt', 'wb') as f:
+#     pickle.dump(phrases, f) 
 
-#%% Histograma de pesos
-plt.hist(phdf['frec'], bins= np.linspace(0, 20000, 100))
-#plt.xlim([0, 2500])
-plt.yscale('log')
-plt.ylabel('cantidad de apariencias')
-plt.xlabel('pesos')
+# #%% Histograma de pesos
+# plt.hist(phdf['frec'], bins= np.linspace(0, 20000, 100))
+# #plt.xlim([0, 2500])
+# plt.yscale('log')
+# plt.ylabel('cantidad de apariencias')
+# plt.xlabel('pesos')
 
 
 #%%
@@ -167,16 +169,22 @@ t0 = time.time()
 grafo = make_graph_df_v3(phdf, k = 10, d = 1)
 tf = time.time()
 print(tf-t0)
+winsound.Beep(freq, duration)
 
-
+#%%
 df_to_compare = pd.DataFrame(columns=['frases', 'cantidad'])
 print(df_to_compare)
 components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
 for i,componente in enumerate(components):
     if len(componente) > 5:
-        print(len(componente), list(componente))
+        #print(len(componente), list(componente))
         df_to_compare.loc[i] = [list(componente), len(componente)]
-
+        sub_graf = grafo.subgraph(componente)
+        out = dict(sub_graf.out_degree())
+        in_ = dict(sub_graf.in_degree())
+        nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
+        nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+        print('nodos out 0', len(nodes_cero_out))
 print(df_to_compare)
 
 # plt.figure()
@@ -187,15 +195,132 @@ print(df_to_compare)
 duration = 1000
 freq = 440
 winsound.Beep(freq, duration)
-#%%
 
-list(df_to_compare['frases'])
 
-with open(path+'frases_to_compare.txt', 'wb') as f:
-    pickle.dump(list(df_to_compare['frases']), f) 
 
-with open(path+'cantidad_to_compare.txt', 'wb') as f:
-    pickle.dump(list(df_to_compare['cantidad']), f) 
+
+
+
+
+
+
+
+
+
+
+
+
+#%% TEST Removien edges
+
+def cont_p_nin(g, n_in, n_cero_out):
+    cont = 0
+    for out in n_cero_out:
+        cant_de_caminos = len(list(nx.all_simple_paths(g, n_in, out)))
+        if cant_de_caminos > 0:
+            cont += 1
+    return cont
+
+def remove_edges(component):
+    '''
+    componente: subgrafo
+    '''
+    edges = list(component.edges())
+    df = pd.DataFrame(columns=['enlaces', 'pesos'])
+    for i, edge in enumerate(edges):
+        df.loc[i] = edge, component.get_edge_data(edge[0], edge[1]).get('weight')
+    df.sort_values(by = ['pesos'], ascending=True)
+    enlces_en_orden = list(df.sort_values(by=['pesos'], ascending=True)['enlaces'])
+    pesos = list(df.sort_values(by=['pesos'], ascending=True)['pesos'])
+    out = dict(component.out_degree())
+    in_ = dict(component.in_degree())
+    nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
+    nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+
+    print(len(nodes_cero_in_), len(nodes_cero_out))
+    for nodes_in in nodes_cero_in_:
+        cant_in_out_prev = cont_p_nin(component, nodes_cero_in_, nodes_cero_out)
+        i = 0
+        if cant_in_out_prev <= 1:
+            print('culo')
+        while (cant_in_out_prev > 1) and (i <len(enlces_en_orden)):
+            component.remove_edge(enlces_en_orden[i][0], enlces_en_orden[i][1])
+            cant_in_out = cont_p_nin(component, nodes_in, nodes_cero_out)
+            if  not cant_in_out_prev > cant_in_out:
+                component.add_edge(enlces_en_orden[i][0], enlces_en_orden[i][1], weight = pesos[i])
+            else:
+                enlces_en_orden.pop(i)
+            cant_in_out_prev = cant_in_out
+            i += 1
+    return component
+
+
+
+df_to_compare = pd.DataFrame(columns=['frases', 'cantidad'])
+#print(df_to_compare)
+components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
+for i,componente in enumerate(components):
+    if len(componente) > 5:
+        #print(len(componente), list(componente))
+        df_to_compare.loc[i] = [list(componente), len(componente)]
+
+        sub_graf = grafo.subgraph(componente)
+        out = dict(sub_graf.out_degree())
+        in_ = dict(sub_graf.in_degree())
+        nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
+        nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+        print('nodos out', len(nodes_cero_out))
+        try:
+            #print('en try', sub_graf.nodes())
+            if len(nodes_cero_out)>1:
+                
+                comp_divide = remove_edges(sub_graf)
+                comps_div = list(nx.weakly_connected_components(comp_divide))
+                print('div', len(comp_divide))
+                
+                for j, compss in enumerate(comps_div):
+                    out = dict(compss.out_degree())
+                    in_ = dict(compss.in_degree())
+                    nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
+                    nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+                    #print('nodos_out_dividio', j, len(nodes_cero_out))
+
+            else:
+                pass
+        except:
+            pass
+            #print('en except', sub_graf.nodes())
+#print(df_to_compare)
+
+# plt.figure()
+# nx.draw_kamada_kawai(grafo, node_size = 10)
+# plt.show()
+
+
+duration = 1000
+freq = 440
+winsound.Beep(freq, duration)
+
+
+
+
+
+
+
+
+
+
+
+
+
+#%% Save files
+
+# list(df_to_compare['frases'])
+
+# with open(path+'frases_to_compare.txt', 'wb') as f:
+#     pickle.dump(list(df_to_compare['frases']), f) 
+
+# with open(path+'cantidad_to_compare.txt', 'wb') as f:
+#     pickle.dump(list(df_to_compare['cantidad']), f) 
 
 
 #df_to_compare.to_csv(path+'df_to_compare.csv')
@@ -207,52 +332,3 @@ with open(path+'cantidad_to_compare.txt', 'wb') as f:
 
 
 
-#%% TESTTT
-ar = np.arange(1,15)
-edges = [(1,4),(1,5),(4,8),(5,8),(5,9),(9,13), (2,5),(5,10),(10,14),(2,6),(6,10),(6,11),(11,14),(3,6),(3,7),(7,11), (8,13)]
-weights = np.ones(len(edges))
-weights[1] = 3
-
-g = nx.DiGraph()
-g.add_edges_from(edges,weight = weights)
-# plt.figure()
-# nx.draw(g,with_labels = True)
-# plt.show()
-
-out = dict(g.out_degree())
-in_ = dict(g.in_degree())
-
-nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
-nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
-
-pto_13 = []
-for n_out in nodes_cero_out:
-    for path in nx.all_simple_paths(g, nodes_cero_in_[0], n_out):
-        pto_13.append(path)
-
-caminos = np.array(pto_13)
-
-#%%
-
-if len(np.unique(caminos[:,-1])) != 1:
-    for i in range(len(caminos[0])):
-
-for i in set(caminos[:,1]):
-#    print(nx.ancestors(g, i))
-    if len(nx.ancestors(g, i)) != 1:
-        for j in nx.ancestors(g, i):
-            print(g.get_edge_data(j,i))
-            print(j,i)
-#np.array(list(dict(out).values()))
-# comp_t = components[14]
-# print(comp_t)
-# out = grafo.out_degree(comp_t)
-# for o in out:
-#     print(o[1])
-# p = 0
-# for path in nx.all_simple_paths(grafo, list(comp_t)[-3], list(comp_t)[3]):
-#     print('path', path)
-#     p += 1
-# print(p)
-
-# %%

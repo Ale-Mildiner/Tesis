@@ -46,13 +46,58 @@ nodes_cero_in_
 
 #n_in = nodes_cero_in_[0]
 
-def cont_p_nin(n_in, n_cero_out):
+def cont_p_nin(g, n_in, n_cero_out):
     cont = 0
     for out in n_cero_out:
         cant_de_caminos = len(list(nx.all_simple_paths(g, n_in, out)))
         if cant_de_caminos > 0:
             cont += 1
     return cont
+
+def remove_edges(component):
+    '''
+    componente: subgrafo
+    '''
+    edges = list(component.edges())
+    df = pd.DataFrame(columns=['enlaces', 'pesos'])
+    for i, edge in enumerate(edges):
+        df.loc[i] = edge, component.get_edge_data(edge[0], edge[1]).get('weight')[i]
+    df.sort_values(by = ['pesos'], ascending=True)
+
+    enlces_en_orden = list(df.sort_values(by=['pesos'], ascending=True)['enlaces'])
+    pesos = list(df.sort_values(by=['pesos'], ascending=True)['pesos'])
+    out = dict(component.out_degree())
+    in_ = dict(component.in_degree())
+    nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
+    nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+
+    for nodes_in in nodes_cero_in_:
+        cant_in_out_prev = cont_p_nin(component, nodes_cero_in, nodes_cero_out)
+        i = 0
+        while (cant_in_out_prev > 1) and (i <len(enlces_en_orden)):
+            component.remove_edge(enlces_en_orden[i][0], enlces_en_orden[i][1])
+            cant_in_out = cont_p_nin(component, nodes_in, nodes_cero_out)
+            if  not cant_in_out_prev > cant_in_out:
+                component.add_edge(enlces_en_orden[i][0], enlces_en_orden[i][1], weight = pesos[i])
+            else:
+                enlces_en_orden.pop(i)
+            cant_in_out_prev = cant_in_out
+            i += 1
+    return component
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #%%
 df = pd.DataFrame(columns=['enlaces', 'pesos'])
@@ -114,12 +159,12 @@ nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
 nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
 
 for nodes_in in nodes_cero_in_:
-    cant_in_out_prev = cont_p_nin(nodes_in, nodes_cero_out)
+    cant_in_out_prev = cont_p_nin(g, nodes_in, nodes_cero_out)
     print(cant_in_out_prev)
     i = 0
     while (cant_in_out_prev > 1) and (i <len(enlces_en_orden)):
         g.remove_edge(enlces_en_orden[i][0], enlces_en_orden[i][1])
-        cant_in_out = cont_p_nin(nodes_in, nodes_cero_out)
+        cant_in_out = cont_p_nin(g, nodes_in, nodes_cero_out)
         if  not cant_in_out_prev > cant_in_out:
             g.add_edge(enlces_en_orden[i][0], enlces_en_orden[i][1], weight = pesos[i])
         else:

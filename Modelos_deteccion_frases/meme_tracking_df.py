@@ -128,8 +128,8 @@ def tokenize_count(phrase):
 
 
 #%%
-path = 'd:/Facultad/Tesis/'
-#path = 'c:/Facultad/Tesis/'
+#path = 'd:/Facultad/Tesis/'
+path = 'c:/Facultad/Tesis/'
 phrases = extrac_phrases(path, 5000)
 
 
@@ -184,7 +184,8 @@ for i,componente in enumerate(components):
         in_ = dict(sub_graf.in_degree())
         nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
         nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
-        print('nodos out 0', len(nodes_cero_out))
+        print('nodos out cero', len(nodes_cero_out))
+        print('nodos in cero', len(nodes_cero_in_), '\n')
 print(df_to_compare)
 
 # plt.figure()
@@ -200,6 +201,64 @@ winsound.Beep(freq, duration)
 
 
 
+
+
+
+
+
+
+#%% ChatGPT code
+
+import networkx as nx
+
+# Crear el grafo dirigido acíclico (DAG)
+G = nx.DiGraph()
+G.add_edges_from([(1, 2, {'weight': 5}),
+                  (1, 3, {'weight': 4}),
+                  (2, 3, {'weight': 2}),
+                  (2, 4, {'weight': 3}),
+                  (3, 4, {'weight': 1}),
+                  (3, 5, {'weight': 5}),
+                  (4, 5, {'weight': 2})])
+
+# Obtener el orden topológico de los nodos
+topological_order = list(nx.topological_sort(G))
+
+# Agregar las aristas de mayor peso sin crear ciclos
+H = nx.DiGraph()
+H.add_node(topological_order[0])
+for node in topological_order[1:]:
+    # Obtener las aristas que llegan al nodo actual
+    in_edges = G.in_edges(node, data=True)
+    
+    # Ordenar las aristas de mayor a menor peso
+    in_edges_sorted = sorted(in_edges, key=lambda x: x[2]['weight'], reverse=True)
+    
+    # Agregar la arista de mayor peso que no genere ciclo
+    for u, v, data in in_edges_sorted:
+        if not nx.has_path(H, node, u):
+            H.add_edge(u, v, **data)
+            break
+
+# Imprimir las aristas seleccionadas
+for u, v, data in H.edges(data=True):
+    print(f"{u} -> {v}: {data['weight']}")
+
+
+#%% My interpretation
+
+H = nx.DiGraph()  # creo un nuevo grafo
+
+def enlaces_nuevos(componente):
+    '''
+    componente: sub grafo 
+    '''
+    orden_topologico = list(nx.topological_sort(componente)) #ordeno topologicamente los nodos de un subgrafo
+    H.add_node(topological_order[0])
+    for node in topological_order[1:]:
+        in_edges = componente.in_edges(node, data = True)
+
+        in_edges_sorted = sorted(in_edges, key = lambda x: x[2]['weight'])
 
 
 

@@ -128,8 +128,8 @@ def tokenize_count(phrase):
 
 
 #%%
-#path = 'd:/Facultad/Tesis/'
-path = 'c:/Facultad/Tesis/'
+path = 'd:/Facultad/Tesis/'
+#path = 'c:/Facultad/Tesis/'
 phrases = extrac_phrases(path, 5000)
 
 
@@ -177,6 +177,7 @@ print(df_to_compare)
 components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
 for i,componente in enumerate(components):
     if len(componente) > 5:
+        print(i)
         #print(len(componente), list(componente))
         df_to_compare.loc[i] = [list(componente), len(componente)]
         sub_graf = grafo.subgraph(componente)
@@ -197,6 +198,75 @@ duration = 1000
 freq = 440
 winsound.Beep(freq, duration)
 
+#%%Anotrher irrelevant test
+
+def k_shortest_path(G, source, target, k):
+    def path_cost(G, path):
+        return sum([G[path[i]][path[i+1]]['weight'] for i in range(len(path)-1)])
+    return sorted([(path_cost(G,p), p) for p in nx.shortest_simple_paths(G, source,target,weight='weight') if len(p)==k])[0]
+
+
+def rearmado(componente):
+    sub = grafo.subgraph(componente)
+
+    out = dict(sub.out_degree())
+    in_ = dict(sub.in_degree())
+    nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
+    nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+    print('nodos out cero', len(nodes_cero_out))
+    print('nodos in cero', len(nodes_cero_in_), '\n')
+
+
+    max_peso = []
+    max_path = []
+    max_poss = []
+    for jj, in_ in enumerate(nodes_cero_in_):
+        pesos_caminos = np.zeros(len(nodes_cero_in_))
+        caminos_mas_pesados = [0]*(len(nodes_cero_in_))
+
+        for ii, out in enumerate(nodes_cero_out):
+            #for paths in nx.all_simple_paths(sub, nodes_cero_in_[jj], out):
+            for paths in nx.shortest_simple_paths(sub, nodes_cero_in_[jj], out):
+
+                if pesos_caminos[ii] < nx.path_weight(sub, paths, 'weight'):
+                    pesos_caminos[ii] = nx.path_weight(sub, paths, 'weight')
+                    caminos_mas_pesados[ii] = paths
+        max_peso.append(max(pesos_caminos))
+        pos_max = np.where(pesos_caminos == max(pesos_caminos))
+        print(pos_max)
+        max_path.append(caminos_mas_pesados[pos_max[0][0]])
+        max_poss.append(pos_max)
+    return max_peso, max_path, max_poss
+# el problema de esto es que puede llevar siempre al mismo nodo
+# no es una gran solucion
+# print(pesos_caminos)
+
+# print(caminos_mas_pesados)
+
+
+
+#%%
+
+H = nx.DiGraph()
+
+for i in range(len(caminos_mas_pesados[1])-1):
+    print(list(sub.get_edge_data(caminos_mas_pesados[1][i],caminos_mas_pesados[1][i+1],'weight').values())[0], (caminos_mas_pesados[1][i], caminos_mas_pesados[1][i+1]))
+    peso = list(sub.get_edge_data(caminos_mas_pesados[1][i],caminos_mas_pesados[1][i+1],'weight').values())[0]
+    H.add_edge(caminos_mas_pesados[1][i],caminos_mas_pesados[1][i+1], weight = peso)
+
+for node in sub.nodes():
+    for path in nx.all_simple_paths(sub, node, nodes_cero_out[1]):
+        if node not in nodes_cero_in_:
+            for i in range(len(path)-1):
+                peso = list(sub.get_edge_data(path[i],path[i+1],'weight').values())[0]
+                H.add_edge(path[i],path[i+1], weight = peso)
+plt.figure()
+nx.draw(sub)
+plt.show()
+
+plt.figure()
+nx.draw(H)
+plt.show()
 
 
 
@@ -207,7 +277,18 @@ winsound.Beep(freq, duration)
 
 
 
-#%% ChatGPT code
+
+
+
+
+
+
+
+
+
+
+
+#%% ChatGPT codenx.
 
 import networkx as nx
 
@@ -244,7 +325,12 @@ for node in topological_order[1:]:
 for u, v, data in H.edges(data=True):
     print(f"{u} -> {v}: {data['weight']}")
 
-
+plt.figure()
+nx.draw(G, with_labels = True)
+plt.show()
+plt.figure()
+nx.draw(H, with_labels = True)
+plt.show()
 #%% My interpretation
 
 H = nx.DiGraph()  # creo un nuevo grafo
@@ -260,14 +346,10 @@ def enlaces_nuevos(componente):
 
         in_edges_sorted = sorted(in_edges, key = lambda x: x[2]['weight'])
 
+        for n1, n2, pesos in in_edges_sorted:
+            if not nx.has_path(H, node, u):
 
-
-
-
-
-
-
-
+#%%
 
 #%% TEST Removien edges
 
@@ -300,7 +382,7 @@ def remove_edges(component):
         cant_in_out_prev = cont_p_nin(component, nodes_cero_in_, nodes_cero_out)
         i = 0
         if cant_in_out_prev <= 1:
-            print('culo')
+            print('cant anes menor o igual a 1')
         while (cant_in_out_prev > 1) and (i <len(enlces_en_orden)):
             component.remove_edge(enlces_en_orden[i][0], enlces_en_orden[i][1])
             cant_in_out = cont_p_nin(component, nodes_in, nodes_cero_out)

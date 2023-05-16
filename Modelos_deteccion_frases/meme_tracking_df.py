@@ -128,8 +128,8 @@ def tokenize_count(phrase):
 
 
 #%%
-path = 'd:/Facultad/Tesis/'
-#path = 'c:/Facultad/Tesis/'
+#path = 'd:/Facultad/Tesis/'
+path = 'c:/Facultad/Tesis/'
 phrases = extrac_phrases(path, 5000)
 
 
@@ -246,9 +246,9 @@ def rearmado(componente):
 
 # print(caminos_mas_pesados)
 
-rearmado(components[4])
+rearmado(components[32])
 #%%
-sub = grafo.subgraph(components[1])
+sub = grafo.subgraph(components[8])
 out = dict(sub.out_degree())
 in_ = dict(sub.in_degree())
 nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
@@ -256,9 +256,32 @@ nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
 print('nodos out cero', len(nodes_cero_out))
 print('nodos in cero', len(nodes_cero_in_), '\n')
 
-if nx.has_path(sub, nodes_cero_in_[2], nodes_cero_out[0]): #esti fucna
-    print('sjodj')
+pesos_in = np.zeros(len(nodes_cero_in_))
+paths = []
 
+for i, n_in in enumerate(nodes_cero_in_):
+    pesos_out = 0
+    paths_out = 0
+    for j, n_out in enumerate(nodes_cero_out):
+        if nx.has_path(sub, n_in, n_out): #esti fucna
+            print('entre')
+            #peso, path = camino_pesado(sub, n_in, n_out)
+            p = nx.all_simple_paths(sub, source=n_in, target=n_out)
+            for pp in p:
+                peso = sum(sub[path[i]][path[i+1]]['weight'] for i in range(len(path)-1))
+                if peso > pesos_out:
+                    pesos_out = peso
+                    paths_out = path
+                    #print(peso, i, j)
+                    print(pesos_out)
+
+        else:
+            print(i,j,'else')
+    pesos_in[i] = pesos_out
+    paths.append(paths_out)
+
+max_peso = max(pesos_in)
+pos_max = np.where(pesos_in == max_peso)[0]
 #%%
 sub = grafo.subgraph(components[20])
 

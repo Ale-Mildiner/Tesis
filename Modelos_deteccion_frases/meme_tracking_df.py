@@ -173,7 +173,7 @@ winsound.Beep(freq, duration)
 
 #%%
 df_to_compare = pd.DataFrame(columns=['frases', 'cantidad'])
-print(df_to_compare)
+#print(df_to_compare)
 components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
 for i,componente in enumerate(components):
     if len(componente) > 5:
@@ -187,7 +187,7 @@ for i,componente in enumerate(components):
         nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
         print('nodos out cero', len(nodes_cero_out))
         print('nodos in cero', len(nodes_cero_in_), '\n')
-print(df_to_compare)
+#print(df_to_compare)
 
 # plt.figure()
 # nx.draw_kamada_kawai(grafo, node_size = 10)
@@ -199,12 +199,15 @@ freq = 440
 winsound.Beep(freq, duration)
 
 #%%Anotrher irrelevant test
-
-def k_shortest_path(G, source, target, k):
+def camino_pesado(G, source, target):
     def path_cost(G, path):
         return sum([G[path[i]][path[i+1]]['weight'] for i in range(len(path)-1)])
-    return sorted([(path_cost(G,p), p) for p in nx.shortest_simple_paths(G, source,target,weight='weight') if len(p)==k])[0]
+    return sorted([(path_cost(G,p), p) for p in nx.shortest_simple_paths(G, source,target,weight='weight')], reverse=True)[0]
 
+
+
+
+#%%
 
 def rearmado(componente):
     sub = grafo.subgraph(componente)
@@ -225,8 +228,8 @@ def rearmado(componente):
         caminos_mas_pesados = [0]*(len(nodes_cero_in_))
 
         for ii, out in enumerate(nodes_cero_out):
-            #for paths in nx.all_simple_paths(sub, nodes_cero_in_[jj], out):
-            for paths in nx.shortest_simple_paths(sub, nodes_cero_in_[jj], out):
+            for paths in nx.all_simple_paths(sub, nodes_cero_in_[jj], out):
+            #for paths in nx.shortest_simple_paths(sub, nodes_cero_in_[jj], out):
 
                 if pesos_caminos[ii] < nx.path_weight(sub, paths, 'weight'):
                     pesos_caminos[ii] = nx.path_weight(sub, paths, 'weight')
@@ -242,6 +245,87 @@ def rearmado(componente):
 # print(pesos_caminos)
 
 # print(caminos_mas_pesados)
+
+rearmado(components[4])
+#%%
+sub = grafo.subgraph(components[1])
+out = dict(sub.out_degree())
+in_ = dict(sub.in_degree())
+nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
+nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+print('nodos out cero', len(nodes_cero_out))
+print('nodos in cero', len(nodes_cero_in_), '\n')
+
+if nx.has_path(sub, nodes_cero_in_[2], nodes_cero_out[0]): #esti fucna
+    print('sjodj')
+
+#%%
+sub = grafo.subgraph(components[20])
+
+out = dict(sub.out_degree())
+in_ = dict(sub.in_degree())
+nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
+nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+print('nodos out cero', len(nodes_cero_out))
+print('nodos in cero', len(nodes_cero_in_), '\n')
+
+pesos_in = np.zeros(len(nodes_cero_in_))
+paths = np.zeros(len(nodes_cero_in_))
+
+for ii, nin in enumerate(nodes_cero_in_):
+    pesos_out = 0
+    paths_out = 0
+    for jj, nout in enumerate(nodes_cero_out):
+        try:
+            peso, path = camino_pesado(sub, nin, nout)
+            if peso > pesos_out:
+                pesos_out = peso
+                paths_out = path
+                print(peso, ii, jj, '\n')
+        except:
+            print('no hay path between', ii, 'y', jj,'\n')
+    print(peso, ii, jj, '\n')
+# max_peso = []
+# max_path = []
+# max_poss = []
+# for jj, in_ in enumerate(nodes_cero_in_):
+#     pesos_caminos = np.zeros(len(nodes_cero_in_))
+#     caminos_mas_pesados = [0]*(len(nodes_cero_in_))
+
+#     for ii, out in enumerate(nodes_cero_out):
+# #        for paths in nx.all_simple_paths(sub, nodes_cero_in_[jj], out):
+#         for paths in nx.shortest_simple_paths(sub, nodes_cero_in_[jj], out, weight = 'weight'):
+#             if pesos_caminos[ii] < nx.path_weight(sub, paths, 'weight'):
+#                 pesos_caminos[ii] = nx.path_weight(sub, paths, 'weight')
+
+#     #             caminos_mas_pesados[ii] = paths
+#     # max_peso.append(max(pesos_caminos))
+#     # pos_max = np.where(pesos_caminos == max(pesos_caminos))
+#     # print(pos_max)
+#     # max_path.append(caminos_mas_pesados[pos_max[0][0]])
+#     # max_poss.append(pos_max)
+#     print(pesos_caminos)
+
+#%%
+
+G = nx.Graph()
+def k_shortest_path(G, source, target):
+    def path_cost(G, path):
+        return sum([G[path[i]][path[i+1]]['weight'] for i in range(len(path)-1)])
+    return sorted([(path_cost(G,p), p) for p in nx.shortest_simple_paths(G, source,target,weight='weight')], reverse=True)[0]
+
+G.add_edge('a', 'b', weight=2)
+G.add_edge('b', 'c', weight=4)
+G.add_edge('a', 'c', weight=10)
+G.add_edge('c', 'd', weight=6)
+G.add_edge('b', 'd', weight=2)
+G.add_edge('b', 'e', weight=5)
+G.add_edge('e', 'f', weight=8)
+G.add_edge('d', 'f', weight=8)
+
+a, b =k_shortest_path(G, 'a', 'f')
+b
+
 
 
 

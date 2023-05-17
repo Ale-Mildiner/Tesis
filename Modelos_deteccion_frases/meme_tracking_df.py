@@ -128,9 +128,9 @@ def tokenize_count(phrase):
 
 
 #%%
-path = 'd:/Facultad/Tesis/'
-#path = 'c:/Facultad/Tesis/'
-phrases = extrac_phrases(path, 5000)
+#path = 'd:/Facultad/Tesis/'
+path = 'c:/Facultad/Tesis/'
+phrases = extrac_phrases(path, 10000)
 
 
 duration = 1000
@@ -176,7 +176,7 @@ df_to_compare = pd.DataFrame(columns=['frases', 'cantidad'])
 #print(df_to_compare)
 components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
 for i,componente in enumerate(components):
-    if len(componente) > 5:
+    if len(componente) > 3:
         print(i)
         #print(len(componente), list(componente))
         df_to_compare.loc[i] = [list(componente), len(componente)]
@@ -255,6 +255,7 @@ def separar_memes(componente):
     in_ = dict(sub.in_degree())
     nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
     nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+    n_in_range = len(nodes_cero_in_)
     print('nodos out cero', len(nodes_cero_out))
     print('nodos in cero', len(nodes_cero_in_), '\n')
     H = nx.DiGraph()
@@ -262,7 +263,7 @@ def separar_memes(componente):
     i = 0 
     camino_max  = 5
     peso_max = 4
-    while (camino_max != 0) and (i <len(nodes_cero_in_)+1) and (peso_max != 0):
+    while (camino_max != 0) and (i <n_in_range) and (peso_max != 0):
         print('iiiiiiiiiiiiii', i)
         if i == 0:
             peso_max, camino_max, pos_max, nodes_cero_in, nodes_cero_out, outs_nodes = caminos_mas_pesados(componente, nodes_cero_in_, nodes_cero_out)
@@ -274,7 +275,7 @@ def separar_memes(componente):
             concat_paths = camino_max
         else:
             
-            print('pruuu', len(camino_max))
+            print('pruuu', peso_max)
             comp = nx.DiGraph(sub)
             comp = comp.remove_node(nodo_a_eliminar)
             peso_max, c_max, pos_maxx, ninn, noot, out_N =  caminos_mas_pesados(comp, nodes_cero_in, nodes_cero_out, concat_paths)
@@ -285,7 +286,7 @@ def separar_memes(componente):
                 nodo_a_eliminar = ninn[pos_maxx]
                 nodes_cero_in.pop(pos_maxx)
                 print('ESTOYYYYY ACAAAAAA')
-            print('camino max', camino_max== 0, len(concat_paths))
+            print('camino max', camino_max== 0, peso_max == 0, len(concat_paths))
             plt.figure()
             nx.draw_circular(H)
             plt.show()
@@ -293,13 +294,13 @@ def separar_memes(componente):
         
     return H
 
-gg = separar_memes(components[23])
+gg = separar_memes(components[63])
 comps_gg = list(nx.weakly_connected_components(gg))
 #%%
 a = []
 for i,componente in enumerate(comps_gg):
     # print('componentesssss', i, len(comps_gg))
-    # print(componente)
+    print(componente)
     sub_graf_comp = gg.subgraph(componente)
     out = dict(sub_graf_comp.out_degree())
     in_ = dict(sub_graf_comp.in_degree())
@@ -308,7 +309,7 @@ for i,componente in enumerate(comps_gg):
     a.append(nodes_cero_out)
     #print(list(componente))
 #%%
-subb = grafo.subgraph(components[23])
+subb = grafo.subgraph(components[63])
 plt.figure()
 nx.draw_circular(subb)
 plt.show()

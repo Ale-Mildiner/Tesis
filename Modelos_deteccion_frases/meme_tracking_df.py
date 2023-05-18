@@ -130,7 +130,7 @@ def tokenize_count(phrase):
 #%%
 #path = 'd:/Facultad/Tesis/'
 path = 'c:/Facultad/Tesis/'
-phrases = extrac_phrases(path, 10000)
+phrases = extrac_phrases(path, 5000)
 
 
 duration = 1000
@@ -285,7 +285,6 @@ def separar_memes(componente):
                 concat_paths =concat_paths + c_max
                 nodo_a_eliminar = ninn[pos_maxx]
                 nodes_cero_in.pop(pos_maxx)
-                print('ESTOYYYYY ACAAAAAA')
             print('camino max', camino_max== 0, peso_max == 0, len(concat_paths))
             plt.figure()
             nx.draw_circular(H)
@@ -294,7 +293,7 @@ def separar_memes(componente):
         
     return H
 
-gg = separar_memes(components[63])
+gg = separar_memes(components[13])
 comps_gg = list(nx.weakly_connected_components(gg))
 #%%
 a = []
@@ -309,7 +308,7 @@ for i,componente in enumerate(comps_gg):
     a.append(nodes_cero_out)
     #print(list(componente))
 #%%
-subb = grafo.subgraph(components[63])
+subb = grafo.subgraph(components[13])
 plt.figure()
 nx.draw_circular(subb)
 plt.show()

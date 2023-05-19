@@ -128,9 +128,9 @@ def tokenize_count(phrase):
 
 
 #%%
-#path = 'd:/Facultad/Tesis/'
-path = 'c:/Facultad/Tesis/'
-phrases = extrac_phrases(path, 5000)
+path = 'd:/Facultad/Tesis/'
+#path = 'c:/Facultad/Tesis/'
+phrases = extrac_phrases(path, 50000)
 
 
 duration = 1000
@@ -170,6 +170,9 @@ grafo = make_graph_df_v3(phdf, k = 10, d = 1)
 tf = time.time()
 print(tf-t0)
 winsound.Beep(freq, duration)
+#%%
+pickle.dump(grafo, open('grafo_2300_archivos.pickle', 'wb'))
+
 
 #%%
 df_to_compare = pd.DataFrame(columns=['frases', 'cantidad'])

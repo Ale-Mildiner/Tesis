@@ -130,7 +130,7 @@ def tokenize_count(phrase):
 #%%
 path = 'd:/Facultad/Tesis/'
 #path = 'c:/Facultad/Tesis/'
-phrases = extrac_phrases(path, 50000)
+phrases = extrac_phrases(path, 50000)           
 
 
 duration = 1000

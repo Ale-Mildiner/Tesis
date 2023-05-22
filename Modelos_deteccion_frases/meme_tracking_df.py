@@ -172,7 +172,9 @@ print(tf-t0)
 winsound.Beep(freq, duration)
 #%%
 pickle.dump(grafo, open('grafo_300_archivos.pickle', 'wb'))
-H = pickle.load(open('grafo_300_archivos.pickle', 'rb'))
+
+#%%
+grafo = pickle.load(open('grafo_300_archivos.pickle', 'rb'))
 
 #%%
 df_to_compare = pd.DataFrame(columns=['frases', 'cantidad'])
@@ -311,7 +313,7 @@ for i,componente in enumerate(comps_gg):
     a.append(nodes_cero_out)
     #print(list(componente))
 #%%
-subb = grafo.subgraph(components[13])
+subb = grafo.subgraph(components[47])
 plt.figure()
 nx.draw_circular(subb)
 plt.show()

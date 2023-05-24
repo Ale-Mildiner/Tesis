@@ -10,7 +10,8 @@ import time
 import winsound
 import pickle
 import igraph as ig
-from community import community_louvain as com
+#from community import community_louvain as com
+
 
 # path = 'd:/Git-proyects/Tesis/Modelos_deteccion_frases/'
 def cluster_to_dict(cluster, g):
@@ -24,7 +25,7 @@ grafo = pickle.load(open('grafo_300_archivos.pickle', 'rb'))
 components = list(nx.weakly_connected_components(grafo))
 
 for i, comp in enumerate(components):
-    if len(comp) > 10:
+    if len(comp) > 15:
         sub_graf = grafo.subgraph(comp)
         G_ig = ig.Graph.from_networkx(sub_graf)
         com_ip = G_ig.community_infomap()

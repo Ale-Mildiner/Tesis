@@ -180,6 +180,7 @@ grafo = pickle.load(open('grafo_300_archivos.pickle', 'rb'))
 df_to_compare = pd.DataFrame(columns=['frases', 'cantidad'])
 #print(df_to_compare)
 components = list(nx.weakly_connected_components(grafo)) #se puede usar weakly or strongly connectd, weakly coincide con un grafo no direccionado
+c = 0
 for i,componente in enumerate(components):
     if len(componente) > 3:
         print(i)
@@ -190,8 +191,10 @@ for i,componente in enumerate(components):
         in_ = dict(sub_graf.in_degree())
         nodes_cero_out = [clave for clave, valor in out.items() if valor == 0]
         nodes_cero_in_ = [clave for clave, valor in in_.items() if valor == 0]
+        c += 1
         print('nodos out cero', len(nodes_cero_out))
         print('nodos in cero', len(nodes_cero_in_), '\n')
+        print('densidad', nx.density(sub_graf), '\n')
 #print(df_to_compare)
 
 # plt.figure()
@@ -313,7 +316,7 @@ for i,componente in enumerate(comps_gg):
     a.append(nodes_cero_out)
     #print(list(componente))
 #%%
-subb = grafo.subgraph(components[47])
+subb = grafo.subgraph(components[33])
 plt.figure()
 nx.draw_circular(subb)
 plt.show()

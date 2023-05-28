@@ -145,8 +145,8 @@ frec = [0]*len(phrases_ones)
 for i, phr in enumerate(phrases_ones):
     frec[i] = phrases.count(phr)
 phdf['frec'] = frec
-#%%
-#phdf.to_csv(path+'all_data.csv')
+    #%%
+#phdf.to_csv(path+'all_data_new.csv')
 # with open('phrases.txt', 'w') as f:
 #     for phr in phrases:
 #         f.write(f"{phr}\n")

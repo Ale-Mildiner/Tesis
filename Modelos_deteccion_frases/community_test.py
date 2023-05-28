@@ -11,7 +11,7 @@ import winsound
 import pickle
 import igraph as ig
 #from community import community_louvain as com
-
+path = 'd:/Facultad/Tesis/'
 
 # path = 'd:/Git-proyects/Tesis/Modelos_deteccion_frases/'
 def cluster_to_dict(cluster, g):
@@ -21,7 +21,7 @@ def cluster_to_dict(cluster, g):
             dic[g.vs[n]['_nx_name']] = i
     return dic
 
-grafo = pickle.load(open('grafo_300_archivos.pickle', 'rb'))
+grafo = pickle.load(open(path+'grafos/grafo_id150000_archivos.pickle', 'rb'))
 components = list(nx.weakly_connected_components(grafo))
 
 for i, comp in enumerate(components):
@@ -43,7 +43,13 @@ for i, comp in enumerate(components):
         plt.show()
         #print(com_ip)
 
-#%% Testing 4 algorithms of communits at the same time
+#%%
+c = 0
+for comp in components:
+    if len(comp)>1:
+        c+=1
+
+#%% Testing 4 algorithms of communits at the same time no funca
 
 for j, comp in enumerate(components):
     if len(comp) > 10:

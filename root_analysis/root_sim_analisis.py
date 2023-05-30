@@ -21,7 +21,7 @@ pos_c = pk.load(open('columnas_index_08.pickle', 'rb'))
 
 sim  = cosine_similarity(roots_emb[pos_c[0]].reshape(1,-1), roots_emb[pos_f[0]].reshape(1,-1))[0,0]
 sim
-val = 5
+val = 2
 print(roots[pos_f[val]], 'ids ', ids[pos_f[val]])
 print(roots[pos_c[val]], 'ids ', ids[pos_c[val]])
 

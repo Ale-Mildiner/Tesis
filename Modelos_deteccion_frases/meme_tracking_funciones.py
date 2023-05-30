@@ -1,3 +1,4 @@
+#%%
 from nltk import word_tokenize
 import string
 import pylev
@@ -7,6 +8,9 @@ import pandas as pd
 import numpy as np
 import time
 import pickle
+from collections import OrderedDict
+import os 
+
 def count_consecutive_words(phrase1, phrase2):
     phrase1 = phrase1.translate(str.maketrans('', '', string.punctuation))
     phrase2 = phrase2.translate(str.maketrans('', '', string.punctuation))
@@ -121,13 +125,30 @@ def tokenize_count(phrase):
     phrase = word_tokenize(phrase.lower())
 
     return len(phrase)
+#%%
+def extrac_phrases_weighted(path1, path2, number_files):
+    sorted_files = pickle.load(open(path1+'sorted_files.pickle', 'rb'))
 
+    phrases = []
+    i= 0
+    while i < number_files:
+        file_path = os.path.join(path2, sorted_files[i][0])
+        data = pd.read_csv(file_path)  
+        phrases = phrases + list(data['phrase'])
+        i += 1
 
+    phrases_ones = list(OrderedDict.fromkeys(phrases))
+    
+    return phrases, phrases_ones
 
-path = 'd:/Facultad/Tesis/'
-phrases = extrac_phrases(path, 1000)           
+path1 = 'd:/Git_Proyects/Tesis/Modelos_deteccion_frases/'
+path2 = 'd:/Facultad/Tesis/Data_disgregada'
+#%%
+# path = 'd:/Facultad/Tesis/'
+# phrases = extrac_phrases(path, 1000)           
 
-phrases_ones = list(set(phrases))
+# phrases_ones = list(set(phrases))
+phrases, phrases_ones = extrac_phrases_weighted(path1, path2, 100)
 phdf = pd.DataFrame({'phrases': phrases_ones})
 phdf['len'] = phdf['phrases'].apply(tokenize_count)
 frec = [0]*len(phrases_ones)
@@ -143,3 +164,38 @@ print(tf-t0)
 
 
 #pickle.dump(grafo, open('grafo_2300_archivos.pickle', 'wb'))
+
+# #%%
+# for file in sorted_files:
+#     file_path = os.path.join(path, file[0])
+#     print(file_path)
+#     data = pd.read_csv(file_path)  
+#     phrases = phrases + list(data['phrase'])
+
+
+
+
+
+# #%%
+# import os
+# import operator
+# import winsound
+# def file_size(path):
+#     return os.path.getsize(path)
+
+# path = 'd:/Facultad/Tesis/Data_disgregada/'
+# files_name = os.listdir(path)
+# file_sizes = [(file, file_size(os.path.join(path, file))) for file in files_name]
+# sorted_files = sorted(file_sizes, key=operator.itemgetter(1), reverse=True)
+
+# duration = 1000
+# freq = 440
+# winsound.Beep(freq, duration)
+
+# #%%
+# for file, size in sorted_files:
+#     file_path = os.path.join(path, file)
+#     # Realiza las operaciones necesarias con el archivo
+#     print(file_path, size)  # Ejemplo: Imprimir la ruta y el tamaño del archiv
+
+

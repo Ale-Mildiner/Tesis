@@ -11,15 +11,16 @@ path = 'd:/Facultad/Tesis/'
 all_data = pd.read_csv(path+'all_data.csv')
 phrases = list(all_data['phrases'])
 
-phr_emb = pk.load(open(path+'phrases_lkvec_emb.pickle', 'rb'))
-ph_ee = torch.from_numpy(phr_emb)[:100000]
-clusters = util.community_detection(ph_ee ,threshold=0.6)
+phr_emb = pk.load(open(path+'phr_embbedings/phrases_lkvec_emb.pickle', 'rb'))
+phr = pk.load(open(path+'phr_embbedings/phrases_to_emb.pickle', 'rb'))
+clusters = util.community_detection(phr_emb,threshold=0.8)
 
+pk.dump(clusters,open('clusters', 'wb'))
 
-for i, cluster in enumerate(clusters):
-    print("\nCluster {}, #{} Elements ".format(i+1, len(cluster)))
-    for sentence_id in cluster[0:3]:
-        print("\t", phrases[sentence_id])
-    print("\t", "...")
-    for sentence_id in cluster[-3:]:
-        print("\t", phrases[sentence_id])
+# for i, cluster in enumerate(clusters):
+#     print("\nCluster {}, #{} Elements ".format(i+1, len(cluster)))
+#     for sentence_id in cluster[0:3]:
+#         print("\t", phrases[sentence_id])
+#     print("\t", "...")
+#     for sentence_id in cluster[-3:]:
+#         print("\t", phrases[sentence_id])

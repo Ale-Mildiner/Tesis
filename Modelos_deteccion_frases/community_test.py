@@ -10,7 +10,7 @@ import time
 import winsound
 import pickle
 import igraph as ig
-#from community import community_louvain as com
+from community import community_louvain as com
 path = 'd:/Facultad/Tesis/'
 
 # path = 'd:/Git-proyects/Tesis/Modelos_deteccion_frases/'
@@ -21,7 +21,11 @@ def cluster_to_dict(cluster, g):
             dic[g.vs[n]['_nx_name']] = i
     return dic
 
-grafo = pickle.load(open(path+'grafos/grafo_id150000_archivos.pickle', 'rb'))
+#grafo = pickle.load(open(path+'grafos/grafo_id150000_archivos.pickle', 'rb'))
+path1 = 'd:/Git_Proyects/Tesis/Modelos_deteccion_frases/'
+
+grafo = pickle.load(open(path1+'grafo_1000_weighted.pickle', 'rb'))
+
 components = list(nx.weakly_connected_components(grafo))
 
 for i, comp in enumerate(components):
@@ -52,26 +56,28 @@ for comp in components:
 #%% Testing 4 algorithms of communits at the same time no funca
 
 for j, comp in enumerate(components):
-    if len(comp) > 10:
+    if len(comp) > 25:
         sub_graf = grafo.subgraph(comp)
+        sub_graf = sub_graf.to_undirected()
         G_ig = ig.Graph.from_networkx(sub_graf)
 
         pos = nx.layout.circular_layout(sub_graf)
 
 
         com_bt = G_ig.community_edge_betweenness(clusters = None, directed = False, weights = None)
-        #com_fg = G_ig.community_fastgreedy(weights = None)
+        com_fg = G_ig.community_fastgreedy(weights = None)
         com_ip = G_ig.community_infomap()
-        #com_lv = com.best_partition(sub_graf)
+        com_lv = com.best_partition(sub_graf)
 
         dic_com_bt = cluster_to_dict(com_bt.as_clustering(), G_ig)
-        #dic_com_fg = cluster_to_dict(com_fg.as_clustering(), G_ig)
+        dic_com_fg = cluster_to_dict(com_fg.as_clustering(), G_ig)
         dic_com_ip = cluster_to_dict(com_ip, G_ig)
-        particiones = [dic_com_bt, dic_com_ip]
-        
-        fig, axs = plt.subplots(1, 2, figsize = (15, 15))
+        particiones = [dic_com_bt, dic_com_fg, dic_com_ip, com_lv]
+        part_name = ['Betweenness', 'Fast-Gready', ' InfoMap', 'Louvain']
+        fig, axs = plt.subplots(2, 2, figsize = (15, 15))
 
         for i, ax in enumerate(fig.axes):
+            ax.set_title(part_name[i])
             nx.draw_networkx_nodes(sub_graf,
                                 pos = pos,
                                 node_color = [plt.get_cmap('Set1')(particiones[i][v]) for v in sub_graf.nodes()],

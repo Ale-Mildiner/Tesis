@@ -164,11 +164,14 @@ grafo = make_graph_df_v3(phdf, k = 10, d = 1)
 tf = time.time()
 print(tf-t0)
 
-
+TOKEN = "6287446315:AAFAnvbB6vUSzttp-smI5E00jDP7hNI7kCo"
+chat_id = "6045013691"
 message = "Termine de correr el codigo en el cluster"
 url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
 print(requests.get(url).json()) # this sends the message
-#pickle.dump(grafo, open('grafo_2300_archivos.pickle', 'wb'))
+
+
+pickle.dump(grafo, open('grafo_2300_archivos.pickle', 'wb'))
 
 # #%%
 # for file in sorted_files:

@@ -1,4 +1,3 @@
-#%%
 import numpy as np
 import pandas as pd
 import pickle as pk
@@ -22,22 +21,3 @@ chat_id = "6045013691"
 message = f"Termine de correr el codigo que clusteriza con 0.75 a los embbedings de las frases"
 url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"                                                                                                                                                    
 print(requests.get(url).json()) # this sends the message
-
-#%%
-path = 'd:/Facultad/Tesis/'
-
-clusters = pk.load(open('clusters_threshold_8.pickle', 'rb'))
-phr = pk.load(open(path+'phr_embbedings/phrases_to_emb.pickle', 'rb'))
-
-#%%
-for c in clusters[515]:
-    print(phr[c])
-
-#%%
-for i, cluster in enumerate(clusters):
-    print("\nCluster {}, #{} Elements ".format(i+1, len(cluster)))
-    for sentence_id in cluster[0:3]:
-        print("\t", phrases[sentence_id])
-    print("\t", "...")
-    for sentence_id in cluster[-3:]:
-        print("\t", phrases[sentence_id])

@@ -24,14 +24,23 @@ def cluster_to_dict(cluster, g):
 #grafo = pickle.load(open(path+'grafos/grafo_id150000_archivos.pickle', 'rb'))
 path1 = 'd:/Git_Proyects/Tesis/Modelos_deteccion_frases/grafos/'
 
-grafo = pickle.load(open(path1+'grafo_1000_weighted.pickle', 'rb'))
+grafo = pickle.load(open(path1+'grafo_1000_k_3_weighted.pickle', 'rb'))
 
 components = list(nx.weakly_connected_components(grafo))
 
-for i, comp in enumerate(components):
+
+#%%
+len_list = []
+for i in components:
+    len_list.append(len(i))
+
+plt.plot(len_list)
+plt.yscale('log')
+#%%
+for i, comp in enumerate(components[0:1]):
     if len(comp) > 15:
         sub_graf = grafo.subgraph(comp)
-        G_ig = ig.Graph.from_networkx(sub_graf)
+        G_ig = ig.Graph.from_networkx(sub_graf) 
         com_ip = G_ig.community_infomap()
         dic_ip = cluster_to_dict(com_ip, G_ig)
         pos = nx.layout.circular_layout(sub_graf)

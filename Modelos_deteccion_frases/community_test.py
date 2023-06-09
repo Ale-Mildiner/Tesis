@@ -10,8 +10,8 @@ import time
 import winsound
 import pickle
 import igraph as ig
-from community import community_louvain as com
-path = 'd:/Facultad/Tesis/'
+#from community import community_louvain as com
+path = 'c:/Facultad/Tesis/'
 
 # path = 'd:/Git-proyects/Tesis/Modelos_deteccion_frases/'
 def cluster_to_dict(cluster, g):
@@ -22,9 +22,10 @@ def cluster_to_dict(cluster, g):
     return dic
 
 #grafo = pickle.load(open(path+'grafos/grafo_id150000_archivos.pickle', 'rb'))
-path1 = 'd:/Git_Proyects/Tesis/Modelos_deteccion_frases/grafos/'
+path1 = 'c:/Git-Proyects/Tesis/Modelos_deteccion_frases/grafos/'
 
-grafo = pickle.load(open(path1+'grafo_1000_k_3_weighted.pickle', 'rb'))
+
+grafo = pickle.load(open(path1+'grafo_1000_k_5_weighted.pickle', 'rb'))
 
 components = list(nx.weakly_connected_components(grafo))
 
@@ -33,9 +34,32 @@ components = list(nx.weakly_connected_components(grafo))
 len_list = []
 for i in components:
     len_list.append(len(i))
-
-plt.plot(len_list)
+print(len(np.where(np.array(len_list) == 1)[0]))
+plt.plot(len_list, '.')
 plt.yscale('log')
+#%%
+for i in list(np.where(np.array(len_list) == 1))[0]:
+    print(components[i])
+
+lengths = []
+for i in list(np.where(np.array(len_list) == 1))[0]:
+    lengths.append(len(max(components[i]).split(" ")))
+
+plt.plot(lengths, '.')
+#%%
+sub_graf = grafo.subgraph(components[0])
+G_ig = ig.Graph.from_networkx(sub_graf) 
+com_ip = G_ig.community_infomap()
+
+dic_ip = cluster_to_dict(com_ip, G_ig)
+#%%
+[key for key, val in dic_ip.items() if val == 20]
+#%%
+positions = np.where(np.array(lengths) ==7)[0][0]
+pos_c = np.where(np.array(len_list) == 1)[0][positions]
+print(components[pos_c])
+
+
 #%%
 for i, comp in enumerate(components[0:1]):
     if len(comp) > 15:

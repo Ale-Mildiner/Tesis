@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 frases = ['llamar a las cosas por su nombre', 'nombrar a los objetos por su denominación', 'el auto es muy espaciado', 'el carro es muy grande']
 #model = SentenceTransformer('Recognai/bert-base-spanish-wwm-cased-xnli')
 
-model = SentenceTransformer('hiiamsid/sentence_similarity_spanish_es')
+model = SentenceTransformer('')
 #model = SentenceTransformer('all-MiniLM-L6-v2')
 
 frases_emb = model.encode(frases, show_progress_bar=True, convert_to_tensor=True)

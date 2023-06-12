@@ -81,7 +81,7 @@ def make_graph_df_v2(df, k,d):
     lengths = df['len'].values
     for i,phr1 in enumerate(phrases):
         length_fr1 = lengths[i]
-        length_filter = df['len']>length_fr1
+        length_filter = df['len']>=length_fr1
         df_filter = df[length_filter].copy()
         
         df_filter['comp'] = df_filter['phrases'].apply(lambda x: count_consecutive_words(phr1, x))

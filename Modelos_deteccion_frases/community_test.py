@@ -25,7 +25,7 @@ def cluster_to_dict(cluster, g):
 path1 = 'c:/Git-Proyects/Tesis/Modelos_deteccion_frases/grafos/'
 
 
-grafo = pickle.load(open(path1+'grafo_1000_k_5_weighted.pickle', 'rb'))
+grafo = pickle.load(open(path1+'grafo_1000_k_3_weighted_v2.pickle', 'rb'))
 
 components = list(nx.weakly_connected_components(grafo))
 
@@ -53,7 +53,7 @@ com_ip = G_ig.community_infomap()
 
 dic_ip = cluster_to_dict(com_ip, G_ig)
 #%%
-[key for key, val in dic_ip.items() if val == 20]
+[key for key, val in dic_ip.items() if val == 10]
 #%%
 positions = np.where(np.array(lengths) ==7)[0][0]
 pos_c = np.where(np.array(len_list) == 1)[0][positions]

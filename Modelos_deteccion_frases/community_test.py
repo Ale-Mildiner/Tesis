@@ -11,7 +11,7 @@ import winsound
 import pickle
 import igraph as ig
 #from community import community_louvain as com
-path = 'c:/Facultad/Tesis/'
+path = 'd:/Facultad/Tesis/'
 
 # path = 'd:/Git-proyects/Tesis/Modelos_deteccion_frases/'
 def cluster_to_dict(cluster, g):
@@ -22,7 +22,7 @@ def cluster_to_dict(cluster, g):
     return dic
 
 #grafo = pickle.load(open(path+'grafos/grafo_id150000_archivos.pickle', 'rb'))
-path1 = 'c:/Git-Proyects/Tesis/Modelos_deteccion_frases/grafos/'
+path1 = 'd:/Git_Proyects/Tesis/Modelos_deteccion_frases/grafos/'
 
 
 grafo = pickle.load(open(path1+'grafo_1000_k_3_weighted_v2.pickle', 'rb'))

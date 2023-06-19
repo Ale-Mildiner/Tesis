@@ -25,7 +25,7 @@ def cluster_to_dict(cluster, g):
 path1 = 'd:/Git_Proyects/Tesis/Modelos_deteccion_frases/grafos/'
 
 
-grafo = pickle.load(open(path1+'grafo_1000_k_3_weighted_v2.pickle', 'rb'))
+grafo = pickle.load(open(path1+'grafo_1000_weighted.pickle', 'rb'))
 
 components = list(nx.weakly_connected_components(grafo))
 
@@ -61,7 +61,7 @@ print(components[pos_c])
 
 
 #%%
-for i, comp in enumerate(components[0:1]):
+for i, comp in enumerate(components):
     if len(comp) > 15:
         sub_graf = grafo.subgraph(comp)
         G_ig = ig.Graph.from_networkx(sub_graf) 

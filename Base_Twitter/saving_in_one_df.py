@@ -20,12 +20,12 @@ medios_oficiales = ['Clarín', 'La Nación', 'El Litoral', 'Página|12', 'Barilo
 medios_oficiales_screnn = ['clarincom', 'lanacion', 'ellitoral', 'pagina12', 'barilochedigital', 'elciudadanoweb', 'radiomitre', 'infobae', 'todonoticias', 'Ambitocom']
 medios_oficiales_screnn_2 = ['ellitoral', 'barilochedigital', 'pagina12', 'elciudadanodiario', 'elsigloweb', 'diarionorte', 'diariotextual', 'opisantacruz', 'eldiadelaplata', 'elciudadanoweb', 'chubutparatodos', 'tunoticia', 'diarionoticias', 'lagacetasalta', 'radiomitre', 'elzonda', 'jujuyaldia', 'santacruzalmomento', 'eldoce', 'tncorrientes', 'ultimahora', 'elpregon', 'misionesonline', 'informatesalta', 'losandes', 'laprensa', 'losprimerostv', 'diariouno', 'corrienteshoy', 'elesquiu', 'lamañanaformosa', 'app', 'infobae', 'lagaceta', 'lanacion', 'tn', 'clarin', 'laredlarioja', 'infomerlo', 'm24digital', 'elliberal', 'diariamente', 'chacodiapordia', 'informedigital', 'laprensafederal', 'elindependiente', 'vocescriticas', 'opinionciudadana', 'lamañanacordoba', 'elancasti', 'eltiemposanjuan', 'primeraedicion', 'telam', 'ambito', 'elcomodorense', 'surenio', 'lavoz']
 
-def salvando_tweets(filename):
+def salvando_tweets(filename, path):
     dias = []
     frases = []
     url_reales = []
     medios = []
-    with open(filename, 'r', encoding = "utf8") as fp:
+    with open(path+filename, 'r', encoding = "utf8") as fp:
         for i, line in enumerate(fp):
             # Para cada linea lee el json y extrae la fecha
             json_data = json.loads(line)
@@ -56,12 +56,14 @@ def salvando_tweets(filename):
         return df
 
 end = '.txt'
-path  = 'd/'
+path  = '../NYData2022/March_Data/'
 listdirect = os.listdir(path)
 df0 = pd.DataFrame()
-for file in listdirect:
-    if file.endswith(end):
-        print(file)
-        df = salvando_tweets(file)
+for i, filename in enumerate(listdirect):
+    if filename.endswith(end) and filename!= "keywords.txt":
+        print(filename)
+        df = salvando_tweets(filename)
         df_nuevo = pd.concat([df0, df])
         df0 = df_nuevo
+        numero_formateado = "{:02}".format(i)
+        df_nuevo.to_csv('df_october/Tweets_october_'+str(numero_formateado)+'.csv')         

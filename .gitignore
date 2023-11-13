@@ -10,3 +10,5 @@ Base_Twitter/viejos
 Base_Twitter/Tweets_august
 Base_Twitter/Tw_meses/*.csv
 Base_Twitter/imagenes
+Faiss_vect/*csv
+Faiss_vect/October_vect/vect_faiss*
